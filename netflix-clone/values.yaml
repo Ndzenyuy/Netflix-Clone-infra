@@ -1,8 +1,16 @@
+# Default values for netflix-clone.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
 replicaCount: 2
+
 image:
   repository: 997450571655.dkr.ecr.us-east-1.amazonaws.com/neflix-clone
-  tag: latest
+  tag: 0.0.2
+  
+
 resources: {}
+
 nodeSelector: {}
 tolerations: []
 affinity: []
