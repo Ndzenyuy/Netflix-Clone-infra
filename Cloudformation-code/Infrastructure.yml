@@ -148,6 +148,7 @@ Resources:
   # EBS CSI Add-On
   EBSCSIDriverAddon:
     Type: AWS::EKS::Addon
+    DependsOn: EBSCSIDriverRole
     Properties:
       AddonName: aws-ebs-csi-driver
       AddonVersion: v1.30.0-eksbuild.1 # Use latest from AWS docs
