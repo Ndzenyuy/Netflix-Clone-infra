@@ -134,7 +134,6 @@ Resources:
   EBSCSIDriverRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "AmazonEKS_EBS_CSI_DriverRole-${ClusterName}"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
