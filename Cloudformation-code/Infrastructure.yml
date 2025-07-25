@@ -129,32 +129,7 @@ Resources:
         - !Ref OIDCAudience
       ThumbprintList:
         - "74f3a68f16524f15424927704c9506f55a9316bd" # Replace with actual thumbprint
-
-    # IAM Role for EBS CSI Driver
-  EBSCSIDriverRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ebs.csi.aws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
-
-  # EBS CSI Add-On
-  EBSCSIDriverAddon:
-    Type: AWS::EKS::Addon
-    DependsOn: EBSCSIDriverRole
-    Properties:
-      AddonName: aws-ebs-csi-driver
-      AddonVersion: v1.30.0-eksbuild.1 # Use latest from AWS docs
-      ClusterName: !Ref EKSCluster
-      ServiceAccountRoleArn: !GetAtt EBSCSIDriverRole.Arn
-      ResolveConflicts: OVERWRITE
-
+   
   Role:
     Type: AWS::IAM::Role
     Properties:
@@ -223,6 +198,3 @@ Outputs:
   NodeGroupRoleArn:
     Value: !GetAtt NodeInstanceRole.Arn
 
-  EBSCSIDriverRoleArn:
-    Description: Role used by the AWS EBS CSI driver
-    Value: !GetAtt EBSCSIDriverRole.Arn
