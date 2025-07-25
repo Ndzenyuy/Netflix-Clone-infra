@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: IAM role for Amazon EBS CSI Driver in EKS
+
+Parameters:
+  ClusterName:
+    Type: String
+
+Resources:
+  EBSCSIDriverRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "AmazonEKS_EBS_CSI_DriverRole-${ClusterName}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: arn:aws:iam::997450571655:oidc-provider/<your-oidc-provider>
+              Action: sts:AssumeRoleWithWebIdentity
+              Condition:
+                StringEquals:
+                  <your-oidc-provider>:sub: system:serviceaccount:kube-system:ebs-csi-controller-sa
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
+
+Outputs:
+  RoleArn:
+    Value: !GetAtt EBSCSIDriverRole.Arn

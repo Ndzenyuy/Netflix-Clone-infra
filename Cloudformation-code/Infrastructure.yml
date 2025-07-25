@@ -119,23 +119,6 @@ Resources:
       FromPort: 80
       ToPort: 80
       CidrIp: 0.0.0.0/0
-  PrometheusIngress:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !GetAtt EKSCluster.ClusterSecurityGroupId
-      IpProtocol: tcp
-      FromPort: 9090
-      ToPort: 9090
-      CidrIp: 0.0.0.0/0
-
-  GrafanaIngress:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !GetAtt EKSCluster.ClusterSecurityGroupId
-      IpProtocol: tcp
-      FromPort: 3000
-      ToPort: 3000
-      CidrIp: 0.0.0.0/0
 
   GithubOidc:
     Type: AWS::IAM::OIDCProvider
@@ -146,6 +129,31 @@ Resources:
         - !Ref OIDCAudience
       ThumbprintList:
         - "74f3a68f16524f15424927704c9506f55a9316bd" # Replace with actual thumbprint
+
+    # IAM Role for EBS CSI Driver
+  EBSCSIDriverRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "AmazonEKS_EBS_CSI_DriverRole-${ClusterName}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ebs.csi.aws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
+
+  # EBS CSI Add-On
+  EBSCSIDriverAddon:
+    Type: AWS::EKS::Addon
+    Properties:
+      AddonName: aws-ebs-csi-driver
+      AddonVersion: v1.30.0-eksbuild.1 # Use latest from AWS docs
+      ClusterName: !Ref EKSCluster
+      ServiceAccountRoleArn: !GetAtt EBSCSIDriverRole.Arn
+      ResolveConflicts: OVERWRITE
 
   Role:
     Type: AWS::IAM::Role
@@ -214,3 +222,7 @@ Outputs:
 
   NodeGroupRoleArn:
     Value: !GetAtt NodeInstanceRole.Arn
+
+  EBSCSIDriverRoleArn:
+    Description: Role used by the AWS EBS CSI driver
+    Value: !GetAtt EBSCSIDriverRole.Arn
